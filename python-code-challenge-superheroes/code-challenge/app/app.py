@@ -2,12 +2,16 @@
 
 from flask import Flask, make_response ,jsonify, request
 from flask_migrate import Migrate
+from flask_sqlalchemy import SQLAlchemy
 
 from models import db, Hero ,Power,HeroPower
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db/app.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config["JSONIFY_PRETTY_PRINT_REGULAR"] = False
+
+app.json.compact = True
 
 
 migrate = Migrate(app, db)
