@@ -1,29 +1,64 @@
-from flask import Flask
+# models.py
 from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
+from sqlalchemy.orm import validates
 
-app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///heroes_powers.db'
-db = SQLAlchemy(app)
-migrate = Migrate(app, db)
+db = SQLAlchemy()
 
 class Hero(db.Model):
+    __tablename__ = 'hero'
+
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(50), nullable=False)
-    super_name = db.Column(db.String(50), nullable=False)
-    powers = db.relationship('Power', secondary='hero_power', backref='heroes', lazy='dynamic')
+    name = db.Column(db.String(255), nullable=False)
+    powers = db.relationship('Power', secondary='hero_powers', backref='heroes')
+
+    def __repr__(self):
+        return f'<Hero {self.name}>'
 
 class Power(db.Model):
+    __tablename__ = 'power'
+
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(50), nullable=False)
+    name = db.Column(db.String(255), nullable=False)
     description = db.Column(db.String(255), nullable=False)
 
+    @validates('description')
+    def validate_description(self, key, value):
+        # if value is a string
+        if not isinstance(value, str):
+            raise ValueError("Description must be a string.")
+
+        #  if the length of the string is between 5 and 255 characters
+        if not (5 <= len(value) <= 255):
+            raise ValueError("Description must be a string with length between 5 and 255 characters.")
+
+        return value
+
+    def __repr__(self):
+        return f'<Power {self.name}, Description={self.description}'
+
 class HeroPower(db.Model):
+    __tablename__ = 'hero_powers'
+
     id = db.Column(db.Integer, primary_key=True)
     hero_id = db.Column(db.Integer, db.ForeignKey('hero.id'), nullable=False)
     power_id = db.Column(db.Integer, db.ForeignKey('power.id'), nullable=False)
-    strength = db.Column(db.String(50), nullable=False)
+    strength = db.Column(db.Integer, nullable=False)
 
-# Define the Many-to-Many relationship between Hero and Power through HeroPower
-Hero.powers = db.relationship('Power', secondary='hero_power', backref='heroes', lazy='dynamic')
-Power.heroes = db.relationship('Hero', secondary='hero_power', backref='powers', lazy='dynamic')
+    @validates('strength')
+    def validate_strength(self, key, value):
+        # Check if strength is an integer
+        if not isinstance(value, int):
+            raise ValueError("Strength must be an integer.")
+
+        # Check if strength is a positive integer
+        if value < 0:
+            raise ValueError("Strength must be a positive integer.")
+
+        return value
+
+    def __repr__(self):
+        return f'<HeroPower hero_id={self.hero_id}, power_id={self.power_id}, strength={self.strength}'
+
+
+
+      
