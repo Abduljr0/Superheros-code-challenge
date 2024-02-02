@@ -5,9 +5,10 @@ name = "pypi"
 
 [packages]
 sqlalchemy = "*"
-flask_migrate = "0.3.8"
 flask = "*"
 migrate = "*"
+flask_sqlalchemy= "3.1.1"
+flask-migrate = "*"
 
 [dev-packages]
 
