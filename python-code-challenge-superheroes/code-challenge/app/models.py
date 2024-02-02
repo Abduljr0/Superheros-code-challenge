@@ -10,6 +10,7 @@ class Hero(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255), nullable=False)
+    super_name = db.Column(db.String(255), nullable=False)
     powers = db.relationship('Power', secondary='hero_powers', backref='heroes')
 
     def __repr__(self):
@@ -43,18 +44,13 @@ class HeroPower(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     hero_id = db.Column(db.Integer, db.ForeignKey('hero.id'), nullable=False)
     power_id = db.Column(db.Integer, db.ForeignKey('power.id'), nullable=False)
-    strength = db.Column(db.Integer, nullable=False)
+    strength = db.Column(db.String(50), nullable=False)
 
     @validates('strength')
-    def validate_strength(self, key, value):
-        # Check if strength is an integer
-        if not isinstance(value, int):
-            raise ValueError("Strength must be an integer.")
-
-        # Check if strength is a positive integer
-        if value < 0:
-            raise ValueError("Strength must be a positive integer.")
-
+    def validate_strength(self, key,value):
+        allowed_strengths = ["Strong", "Weak", "Average"]
+        if value not in allowed_strengths:
+            raise ValueError("Strength must be one of 'Strong', 'Weak', or 'Average'.")
         return value
 
     def __repr__(self):
