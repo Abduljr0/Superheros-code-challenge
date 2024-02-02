@@ -13,6 +13,13 @@ class Hero(db.Model):
     super_name = db.Column(db.String(255), nullable=False)
     powers = db.relationship('Power', secondary='hero_powers', backref='heroes')
 
+    def serialize(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'super_name': self.super_name
+        }
+
     def __repr__(self):
         return f'<Hero {self.name}>'
 
@@ -34,6 +41,14 @@ class Power(db.Model):
             raise ValueError("Description must be a string with length between 5 and 255 characters.")
 
         return value
+    def serialize(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'description': self.description,
+        }
+    
+
 
     def __repr__(self):
         return f'<Power {self.name}, Description={self.description}'
@@ -52,6 +67,14 @@ class HeroPower(db.Model):
         if value not in allowed_strengths:
             raise ValueError("Strength must be one of 'Strong', 'Weak', or 'Average'.")
         return value
+    
+    def serialize(self):
+        return {
+            'id': self.id,
+            'hero_id': self.hero_id,
+            'power_id': self.power_id,
+            'strength': self.strength,
+        }
 
     def __repr__(self):
         return f'<HeroPower hero_id={self.hero_id}, power_id={self.power_id}, strength={self.strength}'
